@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Entity Browser</title>
+</head>
+<body>
+    <h1>Select an Entity</h1>
+    <ul>
+        {{#entities}}
+        <li><a href="/view?entityName={{.}}">{{.}}</a></li>
+        {{/entities}}
+    </ul>
+</body>
+</html>
