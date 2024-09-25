@@ -12,14 +12,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
-
-import org.springframework.ui.Model;
 
 import io.ebean.DB;
 import io.ebean.Database;
@@ -117,59 +116,39 @@ public class EntityBrowserController {
     public String handleAddForm(@RequestParam String entityName, @RequestParam Map<String, String> formData,
             Model model) {
         try {
-            // Load the entity class dynamically
             Class<?> entityClass = getEntityClass(entityName);
 
-            // Create an instance using the first constructor with form data
             Object entityInstance = createEntityInstance(entityClass, formData);
 
-            // Save the entity instance to the database
             DB.save(entityInstance);
 
             model.addAttribute("message", "Entity created successfully!");
             return "entity-browser/success";
         } catch (Exception e) {
             model.addAttribute("error", "Failed to create entity: " + e.getMessage());
-            e.printStackTrace(); // Added for diagnostics
             return "entity-browser/error";
         }
     }
 
-    // Helper method to create an instance of the entity using constructor
-    // parameters
     private Object createEntityInstance(Class<?> entityClass, Map<String, String> formData) throws Exception {
         Constructor<?> constructor = entityClass.getDeclaredConstructors()[1];
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         Parameter[] parameters = constructor.getParameters();
 
-        // Log constructor parameter types for diagnostics
-        System.out.println("Constructor Parameters: ");
-        for (int i = 0; i < parameterTypes.length; i++) {
-            System.out.println(parameters[i].getName() + " : " + parameterTypes[i].getSimpleName());
-        }
-
-        // Create an array to hold constructor arguments
         Object[] constructorArgs = new Object[parameterTypes.length];
 
-        // Fill constructor arguments from form data
         for (int i = 0; i < parameterTypes.length; i++) {
             Parameter parameter = parameters[i];
             String paramName = parameter.getName();
             String paramValue = formData.get(paramName);
 
             if (paramValue != null) {
-                // Convert the value from form data to the appropriate type
                 constructorArgs[i] = convertStringToFieldType(parameterTypes[i], paramValue);
             } else {
                 throw new IllegalArgumentException("Missing value for parameter: " + paramName);
             }
-
-            // Log the parameter conversion for diagnostics
-            System.out.println("Converted " + paramName + " to " + constructorArgs[i] + " of type "
-                    + parameterTypes[i].getSimpleName());
         }
 
-        // Check that all constructorArgs match expected parameter types for diagnostics
         for (int i = 0; i < constructorArgs.length; i++) {
             if (!parameterTypes[i].isInstance(constructorArgs[i])) {
                 throw new IllegalArgumentException(
@@ -179,16 +158,13 @@ public class EntityBrowserController {
             }
         }
 
-        // Instantiate the entity using the constructor and the converted arguments
         return constructor.newInstance(constructorArgs);
     }
 
-    // Helper method to load entity class
     private Class<?> getEntityClass(String entityName) throws ClassNotFoundException {
         return Class.forName("com.example.demo." + entityName);
     }
 
-    // Helper method to extract constructor parameters
     private List<Map<String, String>> getConstructorParameters(Class<?> entityClass) {
         Constructor<?> constructor = entityClass.getDeclaredConstructors()[1];
         Parameter[] parameters = constructor.getParameters();
@@ -216,7 +192,7 @@ public class EntityBrowserController {
             } else if (fieldType == boolean.class || fieldType == Boolean.class) {
                 return Boolean.parseBoolean(value);
             } else {
-                return value; // Default case: return string for objects or other types
+                return value;
             }
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(

@@ -17,7 +17,7 @@ public class EbeanConfiguration {
         config.setDefaultServer(true);
         config.setDdlGenerate(true);
         config.setDdlRun(false);
-        config.setRunMigration(false);
+        config.setRunMigration(true);
         return DatabaseFactory.create(config);
     }
 
