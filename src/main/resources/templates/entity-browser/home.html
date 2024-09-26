@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html
+  th:replace="~{layout/default-layout :: layout(content = ~{::content}, title = 'test title')}"
+  xmlns:th="http://www.thymeleaf.org"
+  lang="en"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <title th:text="'Entity Browser'">Entity Browser</title>
+  </head>
+  <body>
+    <div class="content" th:fragment="content">
+      <h1>Select an Entity</h1>
+      <ul>
+        <!-- Thymeleaf iteration to replace Mustache -->
+        <li th:each="entity : ${entities}">
+          <a
+            th:href="@{'/view?entityName=' + ${entity}}"
+            th:text="${entity}"
+          ></a>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

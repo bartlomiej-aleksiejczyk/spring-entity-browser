@@ -9,18 +9,17 @@
     <form action="/add" method="post">
       <input type="hidden" name="entityName" th:value="${entityName}" />
 
-      <!-- Loop through fields -->
-      <div th:each="field : ${fields}">
+      <!-- Loop through fields (in Thymeleaf it's similar to Mustache) -->
+      <div th:each="field : ${results}">
         <div class="form-group">
           <label
-            th:for="${field.fieldName}"
-            th:text="${field.fieldName} + ' (' + field.fieldType + ')'"
+            th:for="${field.key}"
+            th:text="${field.key} + ' (' + field.value.getClass().getSimpleName() + ')'"
           ></label>
           <input
             type="text"
-            th:id="${field.fieldName}"
-            th:name="${field.fieldName}"
-            th:placeholder="${field.fieldType}"
+            th:id="${field.key}"
+            th:name="${field.key}"
             required
           />
         </div>

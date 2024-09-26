@@ -17,9 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.samskivert.mustache.Mustache;
-import com.samskivert.mustache.Template;
-
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Query;
@@ -52,16 +49,6 @@ public class EntityBrowserController {
 
             model.addAttribute("entityName", entityName);
             model.addAttribute("results", mappedResults);
-            model.addAttribute("iterateFields", new Mustache.Lambda() {
-                @Override
-                public void execute(Template.Fragment frag, Writer out) throws IOException {
-                    Map<String, Object> context = (Map<String, Object>) frag.context(); // Get the current map (entity
-                                                                                        // fields)
-                    for (Map.Entry<String, Object> entry : context.entrySet()) {
-                        out.write("<li>" + entry.getKey() + ": " + entry.getValue() + "</li>");
-                    }
-                }
-            });
 
             return "entity-browser/view";
         } catch (ClassNotFoundException e) {
