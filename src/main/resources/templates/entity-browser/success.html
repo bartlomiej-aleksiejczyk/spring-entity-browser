@@ -6,19 +6,12 @@
 >
   <head>
     <meta charset="UTF-8" />
-    <title th:text="'Entity Browser'">Entity Browser</title>
+    <title>Success</title>
   </head>
   <body>
     <div class="content" th:fragment="content">
-      <h1>Select an Entity</h1>
-      <ul>
-        <li th:each="entity : ${entities}">
-          <a
-            th:href="@{'/view?entityName=' + ${entity}}"
-            th:text="${entity}"
-          ></a>
-        </li>
-      </ul>
+      <h1>{{message}}</h1>
+      <a href="/">Back to entity selection</a>
     </div>
   </body>
 </html>

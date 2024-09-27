@@ -6,28 +6,25 @@
   <body>
     <h1 th:text="'Add New ' + ${entityName}"></h1>
 
-    <form action="/add" method="post">
-      <input type="hidden" name="entityName" th:value="${entityName}" />
+    <!-- Loop through fields (in Thymeleaf it's similar to Mustache) -->
+    <table>
+      <thead>
+        <tr >
+          <div th:each="key : ${results[0].keySet()}">
+            <th th:text="${key}"></th>
+          <div/>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="item : ${results}">
+                <div th:each="entry : ${item.entrySet()}">
+                  <td th:text="${entry.value}">Value</td>
+                </div>
+        </tr>
+      </tbody>
+    </table>
 
-      <!-- Loop through fields (in Thymeleaf it's similar to Mustache) -->
-      <div th:each="field : ${results}">
-        <div class="form-group">
-          <label
-            th:for="${field.key}"
-            th:text="${field.key} + ' (' + field.value.getClass().getSimpleName() + ')'"
-          ></label>
-          <input
-            type="text"
-            th:id="${field.key}"
-            th:name="${field.key}"
-            required
-          />
-        </div>
-      </div>
-
-      <button type="submit" th:text="'Create ' + ${entityName}">Create</button>
-    </form>
-
+    <button type="submit" th:text="'Create ' + ${entityName}">Create</button>
     <a href="/">Back to entity selection</a>
   </body>
 </html>

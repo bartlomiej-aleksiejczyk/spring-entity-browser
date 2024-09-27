@@ -49,7 +49,6 @@ public class EntityBrowserController {
 
             model.addAttribute("entityName", entityName);
             model.addAttribute("results", mappedResults);
-
             return "entity-browser/view";
         } catch (ClassNotFoundException e) {
             model.addAttribute("error", "Entity not found: " + entityName);
