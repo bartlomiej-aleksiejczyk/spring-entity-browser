@@ -14,8 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.example.demo.pagecomponent.PageComponentFormCreator;
+import com.example.demo.pagecomponent.PageComponentTableCreator;
 
 import io.ebean.DB;
 import io.ebean.Database;
@@ -23,8 +27,15 @@ import io.ebean.Query;
 
 @Controller
 public class EntityBrowserController {
+
     @Autowired
     Database database;
+
+    @Autowired
+    PageComponentFormCreator formCreator;
+
+    @Autowired
+    PageComponentTableCreator tableCreator;
 
     private static final List<String> ENTITY_LIST = List.of("Customer");
 
@@ -34,21 +45,49 @@ public class EntityBrowserController {
         return "entity-browser/home";
     }
 
-    @GetMapping("/view")
-    public String viewEntity(@RequestParam String entityName, Model model) {
+    @GetMapping("/view/{entityName}")
+    public String viewEntity(
+            // TODO: use maps or something more efficient for query params
+            @PathVariable String entityName,
+            @RequestParam(name = "entity__table/pageSize", required = false, defaultValue = "10") int pageSize,
+            @RequestParam(name = "entity__table/page", required = false, defaultValue = "1") int page,
+            @RequestParam(name = "entity__table/order", required = false) String order, Model model) {
         try {
             Class<?> entityClass = Class.forName("com.example.demo." + entityName);
-
+            String tableName = "entity__table";
             Query<?> query = DB.find(entityClass);
+            System.out.println(page);
+
+            // Handle ordering by the requested column
+            if (order != null && !order.isEmpty()) {
+                query.orderBy(order);
+            }
+
             List<?> results = query.findList();
 
+            // Transform results into a list of maps for easier table generation
             List<Map<String, Object>> mappedResults = new ArrayList<>();
             for (Object entity : results) {
                 mappedResults.add(transformEntityToMap(entity));
             }
 
+            // Calculate total pages
+            int totalPages = (int) Math.ceil((double) mappedResults.size() / pageSize);
+
+            // Paginate the results
+            int startIndex = (page - 1) * pageSize;
+            int endIndex = Math.min(startIndex + pageSize, mappedResults.size());
+            List<Map<String, Object>> paginatedResults = mappedResults.subList(startIndex, endIndex);
+
+            // Create TableConfig based on request parameters
+            PageComponentTableCreator.TableConfig config = new PageComponentTableCreator.TableConfig(
+                    true, true, true, pageSize, page, totalPages);
+
+            // Generate table HTML using PageComponentTableCreator
+            String tableHtml = tableCreator.createTableFragment(paginatedResults, entityName, tableName, config);
+
             model.addAttribute("entityName", entityName);
-            model.addAttribute("results", mappedResults);
+            model.addAttribute("tableHtml", tableHtml);
             return "entity-browser/view";
         } catch (ClassNotFoundException e) {
             model.addAttribute("error", "Entity not found: " + entityName);
@@ -83,15 +122,19 @@ public class EntityBrowserController {
     @GetMapping("/add")
     public String addEntityForm(@RequestParam String entityName, Model model) {
         try {
-            // Load the entity class dynamically
+            // Load the entity class dynamically based on the provided entity name
             Class<?> entityClass = getEntityClass(entityName);
 
-            // Get constructor parameters
-            List<Map<String, String>> paramList = getConstructorParameters(entityClass);
+            // Use PageComponentFormCreator to generate form as HTML fragment
+            String formHtml = formCreator.createFormFragment(entityClass);
 
+            // Add the generated form fragment to the model
+            model.addAttribute("formHtml", formHtml);
             model.addAttribute("entityName", entityName);
-            model.addAttribute("fields", paramList);
             return "entity-browser/add";
+        } catch (ClassNotFoundException e) {
+            model.addAttribute("error", "Entity not found: " + entityName);
+            return "entity-browser/error";
         } catch (Exception e) {
             model.addAttribute("error", "Error loading form: " + e.getMessage());
             return "entity-browser/error";

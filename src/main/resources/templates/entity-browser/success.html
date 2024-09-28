@@ -10,7 +10,7 @@
   </head>
   <body>
     <div class="content" th:fragment="content">
-      <h1>{{message}}</h1>
+      <h1 th:text="${message}">Message text not found</h1>
       <a href="/">Back to entity selection</a>
     </div>
   </body>

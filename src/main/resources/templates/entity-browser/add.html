@@ -6,28 +6,8 @@
   <body>
     <h1 th:text="'Add New ' + ${entityName}"></h1>
 
-    <form action="/add" method="post">
-      <input type="hidden" name="entityName" th:value="${entityName}" />
-
-      <!-- Loop through fields -->
-      <div th:each="field : ${fields}">
-        <div class="form-group">
-          <label
-            th:for="${field.fieldName}"
-            th:text="${field.fieldName} + ' (' + field.fieldType + ')'"
-          ></label>
-          <input
-            type="text"
-            th:id="${field.fieldName}"
-            th:name="${field.fieldName}"
-            th:placeholder="${field.fieldType}"
-            required
-          />
-        </div>
-      </div>
-
-      <button type="submit" th:text="'Create ' + ${entityName}">Create</button>
-    </form>
+    <!-- Render the form HTML fragment -->
+    <div th:utext="${formHtml}"></div>
 
     <a href="/">Back to entity selection</a>
   </body>

@@ -11,7 +11,7 @@
   <body>
     <div class="content" th:fragment="content">
       <h1>Error</h1>
-      <p>{{error}}</p>
+      <p th:text="${error}">Error</p>
       <a href="/">Back to entity selection</a>
     </div>
   </body>

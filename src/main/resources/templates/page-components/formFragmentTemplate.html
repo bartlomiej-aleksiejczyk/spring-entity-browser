@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <form
+      th:fragment="entityForm(entityName, fields)"
+      action="/add"
+      <!--
+      Use
+      server-relative
+      URL
+      directly
+      instead
+      of
+      context-relative
+      th:method="post"
+    >
+      <input type="hidden" name="entityName" th:value="${entityName}" />
+
+      <!-- Iterate over form fields to render them dynamically -->
+      <div th:each="field : ${fields}">
+        <div class="form-group">
+          <label
+            th:for="${field.name}"
+            th:text="${field.name} + ' (' + ${field.type} + ')'"
+          ></label>
+          <input
+            type="text"
+            th:id="${field.name}"
+            th:name="${field.name}"
+            th:placeholder="${field.type}"
+            required
+          />
+        </div>
+      </div>
+
+      <button type="submit" th:text="'Create ' + ${entityName}">Create</button>
+    </form>
+  </body>
+</html>

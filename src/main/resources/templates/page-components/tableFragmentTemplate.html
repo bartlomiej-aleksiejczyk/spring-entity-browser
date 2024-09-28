@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <div
+      th:fragment="entityTable(entityName, tableName, headers, results, config, order)"
+    >
+      <table>
+        <thead th:if="${config.showHeaders}">
+          <tr>
+            <th th:each="header : ${headers}">
+              <a
+                th:if="${config.ordering}"
+                th:href="'?' + ${tableName} + '%2Forder=' + ${header} + '&page=' + ${config.currentPage}"
+                th:text="${header}"
+              ></a>
+              <span th:if="${!config.ordering}" th:text="${header}"></span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="row : ${results}">
+            <td
+              th:each="entry : ${row.entrySet()}"
+              th:text="${entry.value}"
+            ></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div th:if="${config.pagination}">
+        <div>
+          <!-- Pagination controls -->
+          <a
+            th:if="${config.currentPage > 1}"
+            th:href="'?' + ${tableName} + '%2Fpage=' + (${config.currentPage} - 1) + ((${order != null}) ? '&order=' + ${header} : '')"
+            >Previous</a
+          >
+
+          <span
+            th:text="'Page ' + ${config.currentPage} + ' of ' + ${config.totalPages}"
+          ></span>
+
+          <a
+            th:if="${config.currentPage < config.totalPages}"
+            th:href="'?' + ${tableName} + '%2Fpage=' + (${config.currentPage} + 1) + (${config.ordering} ? '&order=' + ${config.} : '')"
+            >Next</a
+          >
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
