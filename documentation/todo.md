@@ -5,7 +5,7 @@
 - endpoints browser
 
 ---
-
+- Bulk actions for tables
 - Rich metadata for fragments
   - label i18n support
   - add optional button
