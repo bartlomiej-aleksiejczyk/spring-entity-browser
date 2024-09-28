@@ -11,4 +11,8 @@
   - add optional button
   - exclude include columns
   - action to add column filter
-- Add easy and versalite binding for forms
+- Add easy and versalite binding for forms - I want to bind a form with service or anything
+- Data validation for forms, forms that are generated for dto with error messages in annotation
+- add validators for form
+
+
