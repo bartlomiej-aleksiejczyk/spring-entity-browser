@@ -1,6 +1,14 @@
 # Global idea box/todo list
 
 - Generate fake data/ anonimize some
-- Add metadata to change label i18n support
 - metrics in admin panel
 - endpoints browser
+
+---
+
+- Rich metadata for fragments
+  - label i18n support
+  - add optional button
+  - exclude include columns
+  - action to add column filter
+- Add easy and versalite binding for forms
