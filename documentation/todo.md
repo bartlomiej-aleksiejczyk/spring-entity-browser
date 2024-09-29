@@ -14,5 +14,7 @@
 - Add easy and versalite binding for forms - I want to bind a form with service or anything
 - Data validation for forms, forms that are generated for dto with error messages in annotation
 - add validators for form
+- use link construction in fragments relative to the current request - 
+- build forms and tables programmatically
 
 
