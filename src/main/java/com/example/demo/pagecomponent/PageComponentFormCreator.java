@@ -5,7 +5,9 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -14,9 +16,19 @@ import org.thymeleaf.context.Context;
 public class PageComponentFormCreator {
 
     private final TemplateEngine templateEngine;
+    private final Map<String, String> customWidgets;
 
     public PageComponentFormCreator(TemplateEngine templateEngine) {
         this.templateEngine = templateEngine;
+        this.customWidgets = new HashMap<>();
+    }
+
+    public void addCustomWidget(String type, String templatePath) {
+        customWidgets.put(type, templatePath);
+    }
+
+    public String getCustomWidget(String type) {
+        return customWidgets.get(type);
     }
 
     public String createFormFragment(Class<?> entityClass) {
@@ -31,6 +43,7 @@ public class PageComponentFormCreator {
         Context context = new Context();
         context.setVariable("entityName", entityClass.getSimpleName());
         context.setVariable("fields", formFields);
+        context.setVariable("customWidgets", customWidgets);
 
         return templateEngine.process("page-components/formFragmentTemplate", context);
     }
