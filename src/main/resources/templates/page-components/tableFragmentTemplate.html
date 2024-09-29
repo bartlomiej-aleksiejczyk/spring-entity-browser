@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <body>
     <div
-      th:fragment="entityTable(entityName, tableName, headers, results, config, order)"
+      th:fragment="entityTable(entityName, tableName, headers, results, config)"
     >
       <table>
         <thead th:if="${config.showHeaders}">
@@ -10,9 +10,13 @@
             <th th:each="header : ${headers}">
               <a
                 th:if="${config.ordering}"
-                th:href="'?' + ${tableName} + '%2Forder=' + ${header} + '&page=' + ${config.currentPage}"
+                th:href="${config.baseUrl + '?' + config.entityName + '_order=' + header + (config.reverseOrder && config.orderColumn == header ? '_asc' : '_desc') + '&' + config.entityName + '_page=' + config.currentPage}"
                 th:text="${header}"
               ></a>
+              <span th:if="${config.ordering && config.orderColumn == header}">
+                <span th:if="${!config.reverseOrder}">↓</span>
+                <span th:if="${config.reverseOrder}">↑</span>
+              </span>
               <span th:if="${!config.ordering}" th:text="${header}"></span>
             </th>
           </tr>
@@ -32,17 +36,15 @@
           <!-- Pagination controls -->
           <a
             th:if="${config.currentPage > 1}"
-            th:href="'?' + ${tableName} + '%2Fpage=' + (${config.currentPage} - 1) + ((${order != null}) ? '&order=' + ${header} : '')"
+            th:href="${config.getPrevPageUrl()}"
             >Previous</a
           >
-
           <span
             th:text="'Page ' + ${config.currentPage} + ' of ' + ${config.totalPages}"
           ></span>
-
           <a
             th:if="${config.currentPage < config.totalPages}"
-            th:href="'?' + ${tableName} + '%2Fpage=' + (${config.currentPage} + 1) + (${config.ordering} ? '&order=' + ${config.} : '')"
+            th:href="${config.getNextPageUrl()}"
             >Next</a
           >
         </div>

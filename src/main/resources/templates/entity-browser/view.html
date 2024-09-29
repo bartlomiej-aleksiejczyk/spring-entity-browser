@@ -1,19 +1,26 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html
+  th:replace="~{layout/default-layout :: layout(content = ~{::content}, title = 'Viewing ' + ${entityName})}"
+  xmlns:th="http://www.thymeleaf.org"
+  lang="en"
+>
   <head>
-    <title th:text="'View ' + ${entityName}">View Entity</title>
+    <meta charset="UTF-8" />
+    <title>Success</title>
   </head>
   <body>
-    <h1 th:text="'Viewing ' + ${entityName}"></h1>
+    <div class="content" th:fragment="content">
+      <h1 th:text="'Viewing ' + ${entityName}"></h1>
 
-    <div th:utext="${tableHtml}"></div>
+      <div th:utext="${tableHtml}"></div>
 
-    <a th:href="@{/add(entityName=${entityName})}">
-      <button type="button" th:text="'Create New ' + ${entityName}">
-        Create
-      </button>
-    </a>
+      <a th:href="@{/add(entityName=${entityName})}">
+        <button type="button" th:text="'Create New ' + ${entityName}">
+          Create
+        </button>
+      </a>
 
-    <a href="/">Back to entity selection</a>
+      <a href="/">Back to entity selection</a>
+    </div>
   </body>
 </html>

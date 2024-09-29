@@ -1,29 +1,76 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
   <body>
-    <form th:fragment="entityForm(entityName, fields, customWidgets)" action="/add" th:method="post">
+    <form
+      th:fragment="entityForm(entityName, fields, customWidgets, customData)"
+      action="/add"
+      th:method="post"
+    >
       <input type="hidden" name="entityName" th:value="${entityName}" />
 
       <div th:each="field : ${fields}">
         <div class="form-group">
-          <label th:for="${field.name}" th:text="${field.name} + ' (' + ${field.type} + ')'"></label>
+          <label
+            th:for="${field.name}"
+            th:text="${field.name} + ' (' + ${field.type} + ')'"
+          ></label>
 
-          <div th:if="${customWidgets[field.type] != null}">
+          <!-- Custom widget for specific fields -->
+          <div th:if="${customWidgets[field.name] != null}">
+            <div
+              th:replace="${customWidgets[field.name]}"
+              th:with="options=${customData != null ? customData[field.name] : null}"
+            ></div>
+          </div>
+
+          <!-- Custom widget for field type -->
+          <div
+            th:if="${customWidgets[field.name] == null && customWidgets[field.type] != null}"
+          >
             <div th:replace="${customWidgets[field.type]}"></div>
           </div>
-          
-          <div th:if="${customWidgets[field.type] == null}">
+
+          <!-- Default widget -->
+          <div
+            th:if="${customWidgets[field.name] == null && customWidgets[field.type] == null}"
+          >
             <div th:switch="${field.type}">
-              <input th:case="'String'" type="text" th:id="${field.name}" th:name="${field.name}" th:placeholder="${field.type}" required />
-              <input th:case="'Integer'" type="number" th:id="${field.name}" th:name="${field.name}" required />
-              <input th:case="'Boolean'" type="checkbox" th:id="${field.name}" th:name="${field.name}" />
-              <input th:case="'Date'" type="date" th:id="${field.name}" th:name="${field.name}" required />
-              <input th:case="*"
-                     type="text"
-                     th:id="${field.name}"
-                     th:name="${field.name}"
-                     th:placeholder="${field.type}"
-                     required />
+              <input
+                th:case="'String'"
+                type="text"
+                th:id="${field.name}"
+                th:name="${field.name}"
+                th:placeholder="${field.type}"
+                required
+              />
+              <input
+                th:case="'Integer'"
+                type="number"
+                th:id="${field.name}"
+                th:name="${field.name}"
+                required
+              />
+              <input
+                th:case="'Boolean'"
+                type="checkbox"
+                th:id="${field.name}"
+                th:name="${field.name}"
+              />
+              <input
+                th:case="'Date'"
+                type="date"
+                th:id="${field.name}"
+                th:name="${field.name}"
+                required
+              />
+              <input
+                th:case="*"
+                type="text"
+                th:id="${field.name}"
+                th:name="${field.name}"
+                th:placeholder="${field.type}"
+                required
+              />
             </div>
           </div>
         </div>

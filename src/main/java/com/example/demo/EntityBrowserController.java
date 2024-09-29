@@ -1,7 +1,5 @@
 package com.example.demo;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
@@ -24,6 +22,7 @@ import com.example.demo.pagecomponent.PageComponentTableCreator;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Query;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 public class EntityBrowserController {
@@ -37,7 +36,7 @@ public class EntityBrowserController {
     @Autowired
     PageComponentTableCreator tableCreator;
 
-    private static final List<String> ENTITY_LIST = List.of("Customer");
+    private static final List<String> ENTITY_LIST = List.of("Customer", "CustomerOrder");
 
     @GetMapping("/")
     public String entityBrowserHome(Model model) {
@@ -47,43 +46,57 @@ public class EntityBrowserController {
 
     @GetMapping("/view/{entityName}")
     public String viewEntity(
-            // TODO: use maps or something more efficient for query params
             @PathVariable String entityName,
-            @RequestParam(name = "entity__table/pageSize", required = false, defaultValue = "10") int pageSize,
-            @RequestParam(name = "entity__table/page", required = false, defaultValue = "1") int page,
-            @RequestParam(name = "entity__table/order", required = false) String order, Model model) {
-        try {
-            Class<?> entityClass = Class.forName("com.example.demo." + entityName);
-            String tableName = "entity__table";
-            Query<?> query = DB.find(entityClass);
-            System.out.println(page);
+            Model model, HttpServletRequest request) {
 
-            // Handle ordering by the requested column
+        // Query parameters are parsed manually since they are dynamic
+        String pageParam = request.getParameter(entityName + "_page");
+        String pageSizeParam = request.getParameter(entityName + "_pageSize");
+        String orderParam = request.getParameter(entityName + "_order");
+
+        int page = pageParam != null ? Integer.parseInt(pageParam) : 1;
+        int pageSize = pageSizeParam != null ? Integer.parseInt(pageSizeParam) : 10;
+        String order = orderParam != null ? orderParam : null;
+
+        try {
+
+            Class<?> entityClass = Class.forName("com.example.demo." + entityName);
+            String tableName = entityName;
+            Query<?> query = DB.find(entityClass);
+
+            boolean reverseOrder = false;
+
             if (order != null && !order.isEmpty()) {
-                query.orderBy(order);
+                if (order.endsWith("_desc")) {
+                    reverseOrder = true;
+                    order = order.substring(0, order.length() - 5);
+                    query.orderBy(order + " desc");
+                } else if (order.endsWith("_asc")) {
+                    order = order.substring(0, order.length() - 4);
+                    query.orderBy(order + " asc");
+                } else {
+                    query.orderBy(order);
+                }
             }
 
             List<?> results = query.findList();
 
-            // Transform results into a list of maps for easier table generation
             List<Map<String, Object>> mappedResults = new ArrayList<>();
             for (Object entity : results) {
                 mappedResults.add(transformEntityToMap(entity));
             }
 
-            // Calculate total pages
             int totalPages = (int) Math.ceil((double) mappedResults.size() / pageSize);
 
-            // Paginate the results
             int startIndex = (page - 1) * pageSize;
             int endIndex = Math.min(startIndex + pageSize, mappedResults.size());
             List<Map<String, Object>> paginatedResults = mappedResults.subList(startIndex, endIndex);
 
-            // Create TableConfig based on request parameters
-            PageComponentTableCreator.TableConfig config = new PageComponentTableCreator.TableConfig(
-                    true, true, true, pageSize, page, totalPages);
+            String baseUrl = request.getRequestURL().toString();
 
-            // Generate table HTML using PageComponentTableCreator
+            PageComponentTableCreator.TableConfig config = new PageComponentTableCreator.TableConfig(
+                    entityName, true, true, true, pageSize, page, totalPages, baseUrl, order, reverseOrder);
+
             String tableHtml = tableCreator.createTableFragment(paginatedResults, entityName, tableName, config);
 
             model.addAttribute("entityName", entityName);
@@ -122,13 +135,10 @@ public class EntityBrowserController {
     @GetMapping("/add")
     public String addEntityForm(@RequestParam String entityName, Model model) {
         try {
-            // Load the entity class dynamically based on the provided entity name
             Class<?> entityClass = getEntityClass(entityName);
 
-            // Use PageComponentFormCreator to generate form as HTML fragment
-            String formHtml = formCreator.createFormFragment(entityClass);
+            String formHtml = formCreator.createFormFragmentFromConstructor(entityClass);
 
-            // Add the generated form fragment to the model
             model.addAttribute("formHtml", formHtml);
             model.addAttribute("entityName", entityName);
             return "entity-browser/add";
@@ -192,22 +202,6 @@ public class EntityBrowserController {
 
     private Class<?> getEntityClass(String entityName) throws ClassNotFoundException {
         return Class.forName("com.example.demo." + entityName);
-    }
-
-    private List<Map<String, String>> getConstructorParameters(Class<?> entityClass) {
-        Constructor<?> constructor = entityClass.getDeclaredConstructors()[1];
-        Parameter[] parameters = constructor.getParameters();
-
-        List<Map<String, String>> paramList = new ArrayList<>();
-        for (Parameter parameter : parameters) {
-            Map<String, String> paramMap = new HashMap<>();
-            paramMap.put("fieldName", parameter.getName());
-            paramMap.put("fieldType", parameter.getType().getSimpleName());
-            System.out.println(paramMap);
-
-            paramList.add(paramMap);
-        }
-        return paramList;
     }
 
     private Object convertStringToFieldType(Class<?> fieldType, String value) {

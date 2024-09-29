@@ -18,10 +18,14 @@
       href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/bartlomiej-aleksiejczyk/aquaweb.css@0.1.13/dist/aquaweb.min.css"
+    />
     <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
     <th:block th:replace="${extraCss}"></th:block>
   </head>
-  <body class="page">
+  <body class="responsive-container">
     <div class="page__content">
       <div
         th:replace="~{layout/elements/_topbar-header :: topbar-header(topbarHeaderText=${topbarHeaderText})}"

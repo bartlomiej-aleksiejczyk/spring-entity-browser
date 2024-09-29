@@ -13,10 +13,7 @@
       <h1>Select an Entity</h1>
       <ul>
         <li th:each="entity : ${entities}">
-          <a
-            th:href="@{'/view?entityName=' + ${entity}}"
-            th:text="${entity}"
-          ></a>
+          <a th:href="@{'/view/' + ${entity}}" th:text="${entity}"></a>
         </li>
       </ul>
     </div>

@@ -1,14 +1,20 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html
+  th:replace="~{layout/default-layout :: layout(content = ~{::content}, title = 'Add New ' + ${entityName})}"
+  xmlns:th="http://www.thymeleaf.org"
+  lang="en"
+>
   <head>
-    <title th:text="'Add New ' + ${entityName}">Add New Entity</title>
+    <meta charset="UTF-8" />
+    <title>Success</title>
   </head>
   <body>
-    <h1 th:text="'Add New ' + ${entityName}"></h1>
+    <div class="content" th:fragment="content">
+      <h1 th:text="'Add New ' + ${entityName}"></h1>
 
-    <!-- Render the form HTML fragment -->
-    <div th:utext="${formHtml}"></div>
+      <div th:utext="${formHtml}"></div>
 
-    <a href="/">Back to entity selection</a>
+      <a href="/">Back to entity selection</a>
+    </div>
   </body>
 </html>

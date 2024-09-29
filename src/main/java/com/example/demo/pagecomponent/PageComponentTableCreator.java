@@ -33,23 +33,35 @@ public class PageComponentTableCreator {
         return templateEngine.process("page-components/tableFragmentTemplate", context);
     }
 
-    // Need to know what is currently used order parameter
     public static class TableConfig {
+        private String entityName;
         private boolean pagination;
         private boolean ordering;
         private boolean showHeaders;
         private int pageSize;
         private int currentPage;
         private int totalPages;
+        private String baseUrl;
+        private String orderColumn;
+        private boolean reverseOrder;
 
-        public TableConfig(boolean pagination, boolean ordering, boolean showHeaders, int pageSize, int currentPage,
-                int totalPages) {
+        public TableConfig(String entityName, boolean pagination, boolean ordering, boolean showHeaders, int pageSize,
+                int currentPage,
+                int totalPages, String baseUrl, String orderColumn, boolean reverseOrder) {
+            this.entityName = entityName;
             this.pagination = pagination;
             this.ordering = ordering;
             this.showHeaders = showHeaders;
             this.pageSize = pageSize;
             this.currentPage = currentPage;
             this.totalPages = totalPages;
+            this.baseUrl = baseUrl;
+            this.orderColumn = orderColumn;
+            this.reverseOrder = reverseOrder;
+        }
+
+        public String getEntityName() {
+            return entityName;
         }
 
         public boolean isPagination() {
@@ -74,6 +86,34 @@ public class PageComponentTableCreator {
 
         public int getTotalPages() {
             return totalPages;
+        }
+
+        public String getBaseUrl() {
+            return baseUrl;
+        }
+
+        public String getOrderColumn() {
+            return orderColumn;
+        }
+
+        public boolean isReverseOrder() {
+            return reverseOrder;
+        }
+
+        public String getNextPageUrl() {
+            int nextPage = currentPage + 1;
+            return baseUrl + "?" + entityName + "_page=" + nextPage
+                    + (orderColumn != null
+                            ? "&" + entityName + "_order=" + orderColumn + (reverseOrder ? "_desc" : "_asc")
+                            : "");
+        }
+
+        public String getPrevPageUrl() {
+            int prevPage = currentPage - 1;
+            return baseUrl + "?" + entityName + "_page=" + prevPage
+                    + (orderColumn != null
+                            ? "&" + entityName + "_order=" + orderColumn + (reverseOrder ? "_desc" : "_asc")
+                            : "");
         }
     }
 }
