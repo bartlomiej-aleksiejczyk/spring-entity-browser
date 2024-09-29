@@ -80,20 +80,17 @@ public class PageComponentFormCreator {
         return generateForm(entityClass, formFields, null);
     }
 
-    public String createFormFragment(Class<?> entityClass, List<String> selectedFields,
+    public String createFormFragment(Class<?> entityClass, List<String> excludedFields,
             Map<String, Object> customData) {
         List<Field> fields = getAllFields(entityClass);
 
         List<FormField> formFields = new ArrayList<>();
-        if (selectedFields == null || selectedFields.isEmpty() || selectedFields.contains("ALL_FIELDS")) {
+        if (excludedFields == null || excludedFields.isEmpty() || excludedFields.contains("ALL_FIELDS")) {
             for (Field field : fields) {
-                formFields.add(new FormField(field.getName(), field.getType().getSimpleName()));
-            }
-        } else {
-            for (Field field : fields) {
-                if (selectedFields.contains(field.getName())) {
-                    formFields.add(new FormField(field.getName(), field.getType().getSimpleName()));
+                if (excludedFields != null && excludedFields.contains(field.getName())) {
+                    continue;
                 }
+                formFields.add(new FormField(field.getName(), field.getType().getSimpleName()));
             }
         }
 
