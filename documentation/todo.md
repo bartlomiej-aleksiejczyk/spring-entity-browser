@@ -6,6 +6,7 @@
 
 ---
 - Bulk actions for tables
+- stepper form
 - Rich metadata for fragments
   - label i18n support
   - add optional button
